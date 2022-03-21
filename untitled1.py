@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jan 19 10:46:36 2022
-
-@author: aghangha
-"""
 import netCDF4
 import numpy as np
 import pandas as pd
@@ -19,11 +13,12 @@ os.chdir(r"E:\copula\nwm_outputs\conus")
 
 
 start_time=time.time()
-start_date='1980-01-01'
-end_date='2020-12-31'
+start_date='2004-04-12'
+end_date='2005-08-15'
 
 time_list=pd.date_range(start=start_date,end=end_date,freq='H')     #makes a time list with one hour frequency between start and end date.
 
+time_list1=pd.date_range(start='1994-11-07', end='1995-05-16', freq='H')
 
 bucket_name="https://noaa-nwm-retrospective-2-1-pds.s3.amazonaws.com/model_output/"
 
@@ -142,16 +137,9 @@ def df_formation(time_list):
 
 
 
-split_time=np.array_split(time_list,8) # splitting into 20 smaller chunks
-split_time[0]=split_time[0][24480:]
-split_time[1]=split_time[1][24480:]
-split_time[2]=split_time[2][18720:]
-split_time[3]=split_time[3][24480:]
-split_time[4]=split_time[4][24480:]
-split_time[5]=split_time[5][24480:]
-split_time[6]=split_time[6][24480:]
-split_time[7]=split_time[7][34560:]
-
+split_time=np.array_split(time_list,6) # splitting into 20 smaller chunks
+split_time1=np.array_split(time_list1,2)
+split_time.extend(split_time1)
 
 
 from multiprocessing import Pool
@@ -159,25 +147,3 @@ from multiprocessing import Pool
 if __name__ == '__main__':
     with Pool(8) as p:
         p.map(df_formation,split_time)
-
-
-
-# import threading
-
-# idx=1
-# THREADS = []
-# for t_list in split_time:
-#     thread=threading.Thread(target=df_formation,args=(t_list,idx))
-#     thread.start()
-#     THREADS.append(thread)
-#     idx+=1
-
-# import multiprocessing as mp
-
-# idx=1
-# for t_list in split_time:
-#     p=mp.Process(target=df_formation,args=(t_list,idx))
-#     p.start()
-#     idx+=1
-    
-

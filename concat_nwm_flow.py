@@ -7,13 +7,13 @@ Created on Thu Jan 27 15:28:33 2022
 
 import numpy as np
 import pandas as pd
-import math
+
 
 import os
 import datetime as dt
 
 
-os.chdir(r"E:\copula\nwm_outputs")
+os.chdir(r"E:\copula\nwm_outputs\conus")
 
 main_data_list=['Main_dis_nwm_80_82.csv',
                 'Main_dis_nwm_83_84.csv',
