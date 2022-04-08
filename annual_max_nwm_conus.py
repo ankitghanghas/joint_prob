@@ -21,6 +21,22 @@ main_cor_df=pd.DataFrame(columns=pairs.MAIN_ID)
 trib_focus_df=pd.DataFrame(columns=pairs.TRIB_ID)
 trib_cor_df=pd.DataFrame(columns=pairs.TRIB_ID)
 
+def buff_cor_dis(i,type):
+    if type=='POM':
+        id1=int(main_idx.index[i])
+        id_cor=pairs[pairs['MAIN_ID']==id1]['TRIB_ID'].values[0]
+        a=trib_df[str(id_cor)]
+        cor_buff=a[(a.index.date>(main_idx[i].date()-dt.timedelta(days=(int(buffer_time//2)+1)))) & (a.index.date<(main_idx[i].date()+dt.timedelta(days=(int(buffer_time//2)+1))))]
+        cor_dis=cor_buff.max()
+    elif type=='POT':
+        id1=int(trib_idx.index[i])
+        id_cor=pairs[pairs['TRIB_ID']==id1]['MAIN_ID'].values[0]
+        a=main_df[str(id_cor)]
+        cor_buff=a[(a.index.date>(trib_idx[i].date()-dt.timedelta(days=(int(buffer_time//2)+1)))) & (a.index.date<(trib_idx[i].date()+dt.timedelta(days=(int(buffer_time//2)+1))))]
+        cor_dis=cor_buff.max()        
+
+    return cor_dis
+
 
 for year in range(start_year,end_year+1) :
     main_path=str(year)+"_main.csv"
@@ -36,8 +52,10 @@ for year in range(start_year,end_year+1) :
     trib_idx=trib_df.idxmax()
     trib_focus_dis=trib_df.max()
     for i in range(len(main_idx)):
-        main_cor_dis.append(trib_df.loc[main_idx[i]][i])
-        trib_cor_dis.append(main_df.loc[trib_idx[i]][i])
+        main_cor_dis.append(buff_cor_dis(i,type='POM'))
+        trib_cor_dis.append(buff_cor_dis(i,type='POT'))
+        #main_cor_dis.append(trib_df.loc[main_idx[i]][i])
+        #trib_cor_dis.append(main_df.loc[trib_idx[i]][i])
     main_focus_dis=pd.Series(main_focus_dis.to_list(),index=main_focus_df.columns)
     main_cor_dis=pd.Series(main_cor_dis, index=main_cor_df.columns)
     trib_focus_dis=pd.Series(trib_focus_dis.to_list(),index=trib_focus_df.columns)
@@ -65,4 +83,4 @@ for i in range(len(main_idx)):
     pairs['POT_tau'][i]=tau1
     pairs['POT_pval'][i]=p1
 
-pairs.to_csv('tau_table.csv')
+pairs.to_csv('tau_table_7day_buff.csv')
