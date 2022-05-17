@@ -4,6 +4,7 @@ Created on Wed Jan 19 10:46:36 2022
 
 @author: aghangha
 """
+#%%
 import netCDF4
 import numpy as np
 import pandas as pd
@@ -11,17 +12,16 @@ import urllib.request
 
 import os
 import time
-
-
+#%%
 
 ### may need to change the directory path all files will be modified and saved in this directory
-os.chdir(r"E:\copula\nwm_outputs\conus")   # sayan
+os.chdir(r"E:\copula\nwm_outputs\ca")   # sayan
 
 
 start_time=time.time()
 start_date='1980-01-01'
-end_date='1980-09-30'
-#end_date='2020-12-31'
+#end_date='1980-09-30'
+end_date='2020-12-31'
 
 time_list=pd.date_range(start=start_date,end=end_date,freq='H')     #makes a time list with one hour frequency between start and end date.
 
@@ -30,9 +30,10 @@ bucket_name="https://noaa-nwm-retrospective-2-1-pds.s3.amazonaws.com/model_outpu
 
 
 ## specify the path of file containing confluences
-#sayan
-nhd_con_path=r"E:\copula\nwm\conus_nhd_confluence_pairs_gtr3_lessthn10.csv" # path of file containing COMID (feature ID) list.
+
+nhd_con_path=r"E:\copula\nwm\nhd_confluence_gtr_10_ca.csv" # path of file containing COMID (feature ID) list.   #sayan
 nhd_con=pd.read_csv(nhd_con_path)
+
 
 
 MAIN_ID=nhd_con.MAIN_ID         #get COMID from the file.
@@ -110,6 +111,10 @@ def df_formation(time_list):
             df_trib_dis=DailyFlow(df_trib_dis)
             main_name='Main_dis_nwm_'+time1+'.csv'
             trib_name='Trib_dis_nwm_'+time1+'.csv'
+            print(main_name)
+            print(time1)
+            print(df_main_dis)
+
             df_main_dis.to_csv(main_name)
             df_trib_dis.to_csv(trib_name)
             
@@ -129,8 +134,8 @@ def df_formation(time_list):
     df_main_dis.to_csv(main_name)
     df_trib_dis.to_csv(trib_name)
 
-#sayan
-num_workers=20
+
+num_workers=8          #sayan
 split_time=np.array_split(time_list,num_workers) # splitting into 20 smaller chunks
 
 
@@ -139,6 +144,7 @@ from multiprocessing import Pool
 
 
 if __name__ == '__main__':
+    os.chdir(r"E:\copula\nwm_outputs\ca")
     with Pool(num_workers) as p:
         p.map(df_formation,split_time)
 

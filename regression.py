@@ -7,6 +7,7 @@ regression on correlation coefficient and drainage area ratio.
 @author: aghangha
 """
 #%%
+
 from math import log
 from sklearn.datasets import make_regression
 from sklearn.linear_model import LinearRegression
@@ -22,9 +23,13 @@ def calculate_bic(n, mse, num_params):
 	return bi
 
 
-df=pd.read_csv(r"E:\copula\nwm_outputs\conus\tau_table_stat_sig.csv",index_col=0)
-
+#df=pd.read_csv(r"E:\copula\nwm_outputs\conus\tau_table_stat_sig.csv",index_col=0)
+#df=pd.read_csv(r"E:\copula\nwm_outputs\tau_table_stat_sig_all.csv",index_col=0)
+df=pd.read_csv(r"E:\copula\nwm_outputs\tau_table_15day_stat_sig_CONUS.csv",index_col=0)
+df.VPUID=df.VPUID.astype('str') # large file so sometimes it does read it as strings
+df.RPUID=df.RPUID.astype('str')
 #%%
+
 class Regression:
     def __init__(self,dataframe,stream,type_of_regress):
         self.df=dataframe
@@ -67,6 +72,7 @@ class Regression:
         return out
 
 #%%
+
 r2_pom=[]
 ms_error_pom=[]
 equation_pom=[]
@@ -133,3 +139,5 @@ df_regress=pd.DataFrame({'HUC_ID':idx,
 
 
             
+
+# %%

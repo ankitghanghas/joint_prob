@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 
-os.chdir(r"E:\copula\nwm_outputs\conus")
+os.chdir(r"E:\copula\nwm_outputs\ca")
 
 start_year=1980
 end_year=2021
@@ -54,8 +54,8 @@ def Concat(file_list):
 def super_conc(list1):
     for year in list1:
         print(year)
-        main_list=[f for f in os.listdir(r"E:\copula\nwm_outputs\conus") if f[:4]=="Main" and f[13:17]==str(year)]
-        trib_list=[f for f in os.listdir(r"E:\copula\nwm_outputs\conus") if f[:4]=='Trib'and f[13:17]==str(year)]
+        main_list=[f for f in os.listdir(r"E:\copula\nwm_outputs\ca") if f[:4]=="Main" and f[13:17]==str(year)]
+        trib_list=[f for f in os.listdir(r"E:\copula\nwm_outputs\ca") if f[:4]=='Trib'and f[13:17]==str(year)]
         a=Concat(main_list)
         a.to_csv((str(year)+'_main.csv'),index=False)
         b=Concat(trib_list)

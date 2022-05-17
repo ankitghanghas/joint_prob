@@ -11,7 +11,7 @@ import pandas as pd
 #flowline=r"E:\copula\in_shapefile\nhd\indiana_nhd.shp"
 flowline=r"C:\Users\aghangha\Documents\ratingcurve\nhdv2\NHDPlusNationalData\NHDPlusV21_National_Seamless_Flattened_Lower48.gdb\NHDFlowline_Network"
 
-comid_values, length_km, stream_ord,ToNode,drainArea_sqkm, vpuid, rpuid,slope =[str(int(row[0])) for row in arcpy.da.SearchCursor(flowline,['COMID'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['LENGTHKM'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['StreamOrde'])],[str(int(row[0])) for row in arcpy.da.SearchCursor(flowline,['ToNode'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['TotDaSqKM'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['VPUID'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['RPUID'])],[str(int(row[0])) for row in arcpy.da.SearchCursor(flowline,['SLOPE'])]]
+comid_values, length_km, stream_ord,ToNode,drainArea_sqkm, vpuid, rpuid,slope =[str(int(row[0])) for row in arcpy.da.SearchCursor(flowline,['COMID'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['LENGTHKM'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['StreamOrde'])],[str(int(row[0])) for row in arcpy.da.SearchCursor(flowline,['ToNode'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['TotDaSqKM'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['VPUID'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['RPUID'])],[row[0] for row in arcpy.da.SearchCursor(flowline,['SLOPE'])]
 df_stream=pd.DataFrame()
 df_stream['COMID']=comid_values; df_stream['LENGTH']=length_km;df_stream['StreamOrder']=stream_ord; df_stream['ToNode']=ToNode;df_stream['DrainArea_sqkm']=drainArea_sqkm; df_stream['VPUID']=vpuid;df_stream['RPUID']=rpuid 
 a=df_stream.ToNode

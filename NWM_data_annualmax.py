@@ -4,6 +4,7 @@ Created on Wed Jan 19 10:46:36 2022
 
 @author: aghangha
 """
+#%%
 import netCDF4
 import numpy as np
 import pandas as pd
@@ -12,14 +13,15 @@ import urllib.request
 import os
 import time
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-
-os.chdir(r"E:\copula\nwm_outputs\conus")
-
+os.chdir(r"E:\copula\nwm_outputs\ca")
+#os.chdir(r"C:\temp\ankit")
 
 start_time=time.time()
-start_date='1980-01-01'
+start_date='1980-01-02'
 end_date='2020-12-31'
 
 time_list=pd.date_range(start=start_date,end=end_date,freq='H')     #makes a time list with one hour frequency between start and end date.
@@ -27,7 +29,7 @@ time_list=pd.date_range(start=start_date,end=end_date,freq='H')     #makes a tim
 
 bucket_name="https://noaa-nwm-retrospective-2-1-pds.s3.amazonaws.com/model_output/"
 
-nhd_con_path=r"E:\copula\nwm\conus_nhd_confluence_pairs_gtr10sqkm.csv" # path of file containing COMID (feature ID) list.
+nhd_con_path=r"E:\copula\nwm\nhd_confluence_gtr_10_ca.csv" # path of file containing COMID (feature ID) list.
 nhd_con=pd.read_csv(nhd_con_path)
 
 
@@ -47,11 +49,11 @@ TRIB_ID=nhd_con.TRIB_ID
 def main_trib_index():
     t=time_list[0]
     time1=t.strftime('%Y%m%d%H')
-    f_name=time1+"00.CHRTOUT_DOMAIN1.comp"
+    f_name="198001010000.CHRTOUT_DOMAIN1.comp"
     key_name=str(t.year)+"/" + f_name
     url_path=bucket_name+key_name
     urllib.request.urlretrieve(url_path,f_name)
-    data=netCDF4.Dataset(f_name)
+    data=netCDF4.Dataset(f_name)  # type: ignore
     COMID_list=data['feature_id'][:].data
     main_index=np.searchsorted(COMID_list,MAIN_ID)  
     trib_index=np.searchsorted(COMID_list,TRIB_ID)
@@ -80,6 +82,8 @@ def df_formation(time_list):
     
     df_main_dis.insert(0,'timestamp',timestamp)
     df_trib_dis.insert(0,'timestamp',timestamp)
+
+
     for idx, t in enumerate(time_list):
         time1=t.strftime('%Y%m%d%H')
         f_name=time1+"00.CHRTOUT_DOMAIN1.comp"
@@ -89,7 +93,7 @@ def df_formation(time_list):
         #coudn't just read file directly into python so i am just downloading it, will remove at the end
         try: 
             urllib.request.urlretrieve(url_path,f_name)
-        except urllib.request.HTTPError:
+        except urllib.request.HTTPError:  
             continue
         data=netCDF4.Dataset(f_name)    # open the NWM output file.
         #COMID_list=data['feature_id'][:].data   # creates COMID list of all COMID in NWM output file.
@@ -115,10 +119,11 @@ def df_formation(time_list):
         except OSError as e:
             print("Error : %s - %s." % (e.filename, e.strerror))
             
-        if idx % 1440 == 1439:
+        if idx % 1440 == 1439:### change this
             
             df_main_dis=DailyFlow(df_main_dis)
             df_trib_dis=DailyFlow(df_trib_dis)
+            
             main_name='Main_dis_nwm_'+time1+'.csv'
             trib_name='Trib_dis_nwm_'+time1+'.csv'
             df_main_dis.to_csv(main_name)
@@ -142,42 +147,42 @@ def df_formation(time_list):
 
 
 
+
 split_time=np.array_split(time_list,8) # splitting into 20 smaller chunks
-split_time[0]=split_time[0][24480:]
-split_time[1]=split_time[1][24480:]
-split_time[2]=split_time[2][18720:]
-split_time[3]=split_time[3][24480:]
-split_time[4]=split_time[4][24480:]
-split_time[5]=split_time[5][24480:]
-split_time[6]=split_time[6][24480:]
-split_time[7]=split_time[7][34560:]
+#%%
 
+split_time[0]=split_time[0][37440:]
+split_time[1]=split_time[0][4320:]
+split_time[0]=split_time[0][:4320]
 
+split_time[2]=split_time[2][27360:]
+
+split_time[4]=split_time[2][5760:11520]
+split_time[5]=split_time[2][11520::]
+split_time[2]=split_time[2][0:5670]
+
+split_time=split_time[0:5]
+#%%
 
 from multiprocessing import Pool
 
 if __name__ == '__main__':
     with Pool(8) as p:
         p.map(df_formation,split_time)
+    print("The time used to execute this is given below")
+    end_time = time.time()
+    print(end_time - start_time)
 
 
+# import concurrent.futures as cf
+
+# with cf.ThreadPoolExecutor() as threads:
+#    t_res = threads.map(df_formation, split_time)
 
 # import threading
 
-# idx=1
 # THREADS = []
 # for t_list in split_time:
-#     thread=threading.Thread(target=df_formation,args=(t_list,idx))
+#     thread=threading.Thread(target=df_formation,args=(t_list))
 #     thread.start()
 #     THREADS.append(thread)
-#     idx+=1
-
-# import multiprocessing as mp
-
-# idx=1
-# for t_list in split_time:
-#     p=mp.Process(target=df_formation,args=(t_list,idx))
-#     p.start()
-#     idx+=1
-    
-
