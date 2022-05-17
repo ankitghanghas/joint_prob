@@ -167,3 +167,50 @@ ax=df.plot.scatter(x='DRAIN_ratio',y='POM_tau', c=a,cmap='copper')
 ax.set_xscale('log')
 plt.xlabel("Drainage Area Ratio")
 plt.ylabel("Kendall's Tau")
+
+#%%
+###plot best fit regression line for different huc regions
+df_regress=pd.read_csv("/Users/aghanghas/Downloads/regress_huc2_gtr10.csv")
+df_regress=df_regress.drop([15]) ## row 15 is repeated (huc id =12 was repeated), check why
+df_regress=df_regress.reset_index()
+
+colors=['black','burlywood','lavenderblush','gold','lemonchiffon','khaki','darkturquoise','mediumorchid','seashell','lightsteelblue','plum','darkseagreen','honeydew','lightcoral','slateblue','moccasin','lavender','orchid','mistyrose','slategrey','peru']
+huc_list=df_regress.HUC_ID
+plt.rcParams.update({'font.size': 15})
+def graph(equation,x_range, title='Best Fit Regression'):
+    x=np.array(x_range)
+    fig, (ax1) = plt.subplots(1, 1,figsize=(7,7))
+    for i,huc in enumerate(huc_list):
+        y=equation(x,i)
+        ax1.plot(x,y,color=colors[i],label=huc)
+    ax1.set_xscale('log')
+    ax1.set_title(title)
+    ax1.set_xlabel("Drainage Area Ratio")
+    ax1.set_ylabel("Kendall's Tau")
+    ax1.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+    plt.tight_layout()
+    plt.show()
+
+def equation(x,i):
+    b=df_regress['Coeff_POM'][i]
+    a=df_regress['Intercept_POM'][i]
+    return(a+b*np.log(x))
+############
+#%%
+data1=[df2[(df2.DRAIN_ratio>1) & (df2.DRAIN_ratio<=10)],df2[(df2.DRAIN_ratio>10) & (df2.DRAIN_ratio<=100)],df2[(df2.DRAIN_ratio>100) & (df2.DRAIN_ratio<=1000)],df2[(df2.DRAIN_ratio>1000) & (df2.DRAIN_ratio<=10000)], df2[(df2.DRAIN_ratio>10000)]]
+huc_list=df2.VPUID.unique()
+x_range=range(len(huc_list))
+marker_list=['o','P','x','D','*']
+labels=['1-10','10-100','100-1000','1000-10000','>10000']
+fig, (ax1) = plt.subplots(1, 1,figsize=(15,7))
+#colors=['burlywood','lavenderblush','gold','lemonchiffon','khaki','darkturquoise','mediumorchid','seashell','lightsteelblue','plum','darkseagreen','honeydew','lightcoral','slateblue','moccasin','lavender','orchid','mistyrose','slategrey','peru']
+colors = ['black','darksalmon', 'lightsteelblue', 'lightsalmon','lightblue']
+for i in range(len(data1)):
+    data1=[df2[(df2.DRAIN_ratio>1) & (df2.DRAIN_ratio<=10)],df2[(df2.DRAIN_ratio>10) & (df2.DRAIN_ratio<=100)],df2[(df2.DRAIN_ratio>100) & (df2.DRAIN_ratio<=1000)],df2[(df2.DRAIN_ratio>1000) & (df2.DRAIN_ratio<=10000)], df2[(df2.DRAIN_ratio>10000)]]
+    y=[data1[i][data1[i]['VPUID']==huc_id]['POM_tau'].median() for huc_id in huc_list]
+    ax1.scatter(x_range,y,marker=marker_list[i],label=labels[i])
+
+ax1.set_xticklabels(huc_list)
+ax1.set_xlabel("HUC ID")
+ax1.set_ylabel("Median Kendall's Tau")
+ax1.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
